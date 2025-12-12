@@ -6,197 +6,180 @@
 <title>LUCKYDTM</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{font-family:'Roboto', sans-serif; overflow-x:hidden; color:#fff;}
+  a{color:inherit; text-decoration:none;}
+  
+  /* Gradient background animation */
   body {
-    font-family:'Roboto', sans-serif;
-    background: #0d0d1a;
-    color:#fff;
-    overflow-x:hidden;
+    min-height:100vh;
+    background: linear-gradient(120deg,#0d0d1a,#001a33,#0d1a3a);
+    background-size: 600% 600%;
+    animation: gradientBG 15s ease infinite;
+  }
+  @keyframes gradientBG {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
   }
 
-  a { text-decoration:none; color:inherit; }
-
-  /* Top-right Social Icons */
-  #top-socials {
+  /* Top nav bar */
+  nav {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top:0;
+    left:0;
+    width:100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
     display:flex;
-    gap:15px;
+    justify-content:center;
+    padding:1rem 0;
     z-index:999;
   }
-  #top-socials a img {
-    width:35px;
-    height:35px;
-    transition: transform 0.3s ease, filter 0.3s ease;
-  }
-  #top-socials a img:hover {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 10px #8affff);
-  }
-
-  /* Sections */
-  section {
-    min-height:100vh;
-    padding:100px 10%;
+  nav ul{
+    list-style:none;
     display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    position:relative;
+    gap:2rem;
+    font-family:'Orbitron', sans-serif;
+    font-weight:700;
+  }
+  nav ul li{
+    cursor:pointer;
+    padding:0.5rem 1rem;
+    border-radius:8px;
+    transition: all 0.3s ease;
+  }
+  nav ul li:hover, nav ul li.active{
+    background: #8affff;
+    color: #0d0d1a;
   }
 
-  h1 {
+  /* Content sections */
+  .tab-content {
+    min-height:100vh;
+    padding:150px 10%;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    text-align:center;
+    transition: opacity 0.5s ease;
+  }
+  .tab-content.active{
+    display:flex;
+    opacity:1;
+  }
+
+  h1{
     font-family:'Orbitron', sans-serif;
     font-size:4rem;
-    background: linear-gradient(90deg, #000000, #0d1a3a);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: all 1s ease;
+    background: linear-gradient(90deg,#000000,#0d1a3a);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:1rem;
   }
 
-  /* Gradient fades on scroll */
-  h1.fade-scroll {
-    background: linear-gradient(90deg, #0d1a3a, #000000);
-  }
-
-  p.subtitle {
+  .subtitle{
     font-size:1.3rem;
-    color:#aaa;
-    margin-top:20px;
+    color:#ccc;
+    margin-bottom:2rem;
   }
 
-  .btn {
-    display:inline-block;
-    margin:1rem 0.5rem;
-    padding:0.75rem 2rem;
-    border:2px solid #8affff;
-    border-radius:30px;
-    color:#8affff;
-    font-weight:500;
-    transition:all 0.3s ease;
-  }
-  .btn:hover {
-    background:#8affff;
-    color:#0d0d1a;
-  }
-
-  /* Music Grid */
-  .grid {
+  .grid{
     display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
     gap:2rem;
     width:100%;
-    margin-top:2rem;
   }
-  .track-card {
+
+  .track-card{
     background: rgba(20,20,50,0.7);
     border-radius:15px;
     padding:1rem;
     overflow:hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-align:center;
   }
-  .track-card:hover {
+  .track-card:hover{
     transform: translateY(-8px);
     box-shadow: 0 8px 20px rgba(138,255,255,0.3);
   }
-  .track-card iframe {
+  .track-card iframe{
     width:100%;
     border-radius:10px;
     margin-top:0.5rem;
   }
 
-  /* Featured Project */
-  #featured img {
-    max-width:400px;
-    border-radius:20px;
-    margin-bottom:1rem;
-  }
-  #featured .desc {
-    max-width:600px;
-    font-size:1.1rem;
-    color:#ddd;
-    line-height:1.6;
-    margin-top:1rem;
-  }
-
-  /* About */
-  #about img {
+  #about img{
     width:300px;
     border-radius:20px;
     margin-bottom:1rem;
   }
-  #about p {
-    max-width:500px;
+  #about p{
+    max-width:600px;
     color:#ccc;
     line-height:1.6;
     margin-top:1rem;
   }
 
-  /* Contact */
-  .socials {
+  /* Social icons inside content */
+  .socials{
     display:flex;
     gap:1.5rem;
     margin-top:2rem;
+    flex-wrap:wrap;
+    justify-content:center;
   }
-  .socials a {
-    color:#8affff;
-    font-size:1.5rem;
-    transition:color 0.3s;
+  .socials a{
+    transition: transform 0.3s ease;
   }
-  .socials a:hover { color:#ff6eff; }
-
-  /* Fade-in animation */
-  .fade-in {
-    opacity:0;
-    transform:translateY(20px);
-    transition: all 1s ease;
+  .socials a img{
+    width:50px;
+    height:50px;
   }
-  .fade-in.visible {
-    opacity:1;
-    transform:translateY(0);
+  .socials a:hover img{
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 15px #8affff);
   }
 
   @media(max-width:768px){
-    h1 { font-size:3rem; }
-    p.subtitle { font-size:1.1rem; }
+    h1{font-size:3rem;}
+    .grid{grid-template-columns:1fr;}
   }
 </style>
 </head>
 <body>
 
-<!-- Top-right Social Icons -->
-<div id="top-socials">
-  <a href="https://www.youtube.com/@LuckyDTM" target="_blank">
-    <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/youtube-app-white-icon.png" alt="YouTube">
-  </a>
-  <a href="https://soundcloud.com/bh-fire-558322673" target="_blank">
-    <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/soundcloud-white-icon.png" alt="SoundCloud">
-  </a>
-  <a href="https://discord.com/users/758210843510308864" target="_blank">
-    <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/discord-white-icon.png" alt="Discord">
-  </a>
-</div>
+<!-- Navigation -->
+<nav>
+  <ul>
+    <li class="active" data-tab="socials">Socials</li>
+    <li data-tab="music">Music</li>
+    <li data-tab="description">Description</li>
+  </ul>
+</nav>
 
-<!-- Hero Section -->
-<section id="hero">
-  <h1 id="main-title">LUCKYDTM</h1>
-  <p class="subtitle fade-in">Creator of high-energy, genre-switching electronic music.</p>
-  <div class="fade-in">
-    <a href="#music" class="btn">Listen</a>
-    <a href="#featured" class="btn">Projects</a>
-    <a href="#about" class="btn">About</a>
+<!-- Tab: Socials -->
+<section id="socials" class="tab-content active">
+  <h1>LUCKYDTM</h1>
+  <p class="subtitle">Connect with Lucky DTM on socials</p>
+  <div class="socials">
+    <a href="https://www.youtube.com/@LuckyDTM" target="_blank">
+      <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/youtube-app-white-icon.png" alt="YouTube">
+    </a>
+    <a href="https://soundcloud.com/bh-fire-558322673" target="_blank">
+      <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/soundcloud-white-icon.png" alt="SoundCloud">
+    </a>
+    <a href="https://discord.com/users/758210843510308864" target="_blank">
+      <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/discord-white-icon.png" alt="Discord">
+    </a>
   </div>
 </section>
 
-<!-- Music Section -->
-<section id="music">
-  <h2 class="fade-in">Music</h2>
-  <div class="grid fade-in">
+<!-- Tab: Music -->
+<section id="music" class="tab-content">
+  <h1>LUCKYDTM Music</h1>
+  <p class="subtitle">High-energy, genre-switching tracks</p>
+  <div class="grid">
     <div class="track-card">
       <h3>Lucky — YouTube</h3>
       <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=LuckyDTM" frameborder="0" allowfullscreen></iframe>
@@ -209,57 +192,28 @@
   </div>
 </section>
 
-<!-- Featured Project -->
-<section id="featured">
-  <h2 class="fade-in">Featured Project — Multiversal Transcend</h2>
-  <img src="https://via.placeholder.com/400x400.png?text=Artwork" alt="Multiversal Transcend Artwork" class="fade-in">
-  <p class="desc fade-in">
-    A collapsing multiverse. A lone character facing despair, fear, and ultimate transcendence. A journey told through massive genre shifts and emotional sound design.
+<!-- Tab: Description -->
+<section id="description" class="tab-content">
+  <h1>About Lucky</h1>
+  <img src="https://yt3.googleusercontent.com/tYkUvt4AHQYVgQ7y8D-w7U5mbpf5HPiqTqGjHTq60ASe0bx9yaGLIVz4GizTnwz_bA3cwVe1bg=s160-c-k-c0x00ffffff-no-rj" alt="Lucky">
+  <p>
+    Lucky creates music for rhythm games. High-energy, genre-switching electronic music blending cinematic elements, intense beats, and immersive atmospheres. Started making music at 12, rides dirt bikes/ATVs, and has an insane album coming soon!
   </p>
-</section>
-
-<!-- About -->
-<section id="about">
-  <h2 class="fade-in">About Lucky</h2>
-  <img src="https://yt3.googleusercontent.com/tYkUvt4AHQYVgQ7y8D-w7U5mbpf5HPiqTqGjHTq60ASe0bx9yaGLIVz4GizTnwz_bA3cwVe1bg=s160-c-k-c0x00ffffff-no-rj" alt="Lucky" class="fade-in">
-  <p class="fade-in">
-    Lucky creates music for rhythm games. High-energy, genre-switching electronic music blending cinematic elements, intense beats, and immersive atmospheres.
-  </p>
-</section>
-
-<!-- Contact -->
-<section id="contact">
-  <h2 class="fade-in">Contact</h2>
-  <div class="socials fade-in">
-    <a href="https://www.youtube.com/@LuckyDTM" target="_blank">YouTube</a>
-    <a href="https://soundcloud.com/bh-fire-558322673" target="_blank">SoundCloud</a>
-    <a href="https://discord.com/users/758210843510308864" target="_blank">Discord</a>
-  </div>
 </section>
 
 <script>
-  // Fade-in on scroll
-  const faders = document.querySelectorAll('.fade-in');
-  const appearOptions = { threshold: 0.1 };
-  const appearOnScroll = new IntersectionObserver(function(entries, observer){
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, appearOptions);
-  faders.forEach(fader => appearOnScroll.observe(fader));
+  const tabs = document.querySelectorAll('nav ul li');
+  const contents = document.querySelectorAll('.tab-content');
 
-  // Gradient fade on scroll
-  const title = document.getElementById('main-title');
-  window.addEventListener('scroll', ()=>{
-    const scrollY = window.scrollY;
-    if(scrollY > 50){
-      title.classList.add('fade-scroll');
-    } else {
-      title.classList.remove('fade-scroll');
-    }
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      // Remove active
+      tabs.forEach(t=>t.classList.remove('active'));
+      contents.forEach(c=>c.classList.remove('active'));
+      // Add active
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
   });
 </script>
 
