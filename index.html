@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY /// SYSTEM_V6</title>
+    <title>LUCKY /// SYSTEM_V7_PERSISTENT</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 
     <script>
-        /* --- FAVICON LOADER --- */
         document.addEventListener("DOMContentLoaded", async () => {
             try {
                 const r = await fetch('favicon.txt');
@@ -26,18 +25,21 @@
     </script>
 
     <style>
-        /* --- 0. CORE VARIABLES --- */
+        /* --- CORE VARIABLES --- */
         :root {
             --void: #050505;
-            --accent: #00f3ff; /* Default Cyan */
+            --accent: #00f3ff;
             --white: #eaeaea;
             --glass: rgba(10, 15, 20, 0.95);
             --border: rgba(255, 255, 255, 0.15);
             --font-head: 'Syncopate', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+            --scanline-op: 0.1;
+            --text-glow: 0 0 10px var(--accent);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: color 0.3s, border-color 0.3s, background-color 0.3s; }
+        /* RESET & BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: color 0.3s, border-color 0.3s, background-color 0.3s, text-shadow 0.3s; }
 
         body {
             background-color: var(--void);
@@ -46,7 +48,7 @@
             overflow-x: hidden;
             overflow-y: hidden; /* Locked until load */
             background-image: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000 100%);
-            cursor: crosshair; /* Cool cursor */
+            cursor: crosshair;
         }
 
         /* CUSTOM SCROLLBAR */
@@ -54,20 +56,37 @@
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--accent); }
 
-        /* --- 1. VISUAL FX LAYERS --- */
+        /* --- VISUAL FX LAYERS --- */
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             background-size: 100% 3px, 3px 100%;
-            z-index: 9000; pointer-events: none;
+            z-index: 9000; pointer-events: none; opacity: var(--scanline-op);
+            transition: opacity 0.3s;
         }
+
+        /* HOLO GRID BACKGROUND */
+        .holo-grid {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 50vh;
+            background: 
+                linear-gradient(transparent 0%, var(--accent) 2%, transparent 3%),
+                linear-gradient(90deg, transparent 0%, var(--accent) 2%, transparent 3%);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg) scale(2);
+            opacity: 0; /* Hidden by default */
+            z-index: -2; pointer-events: none;
+            transition: opacity 0.5s;
+            mask-image: linear-gradient(to bottom, transparent, black);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black);
+        }
+        .holo-grid.active { opacity: 0.15; }
 
         #particle-canvas {
             position: fixed; top:0; left:0; width: 100%; height: 100%;
             z-index: -1;
         }
 
-        /* --- 2. SETTINGS UI (New Feature) --- */
+        /* --- ADVANCED SETTINGS UI --- */
         .settings-btn {
             position: fixed; top: 20px; right: 20px; z-index: 10000;
             background: rgba(0,0,0,0.5); border: 1px solid var(--accent);
@@ -79,23 +98,40 @@
         .settings-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
 
         .settings-panel {
-            position: fixed; top: 70px; right: 20px; width: 250px;
+            position: fixed; top: 70px; right: 20px; width: 300px;
             background: var(--glass); border: 1px solid var(--border);
             padding: 20px; z-index: 9999; display: none;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            max-height: 80vh; overflow-y: auto;
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.5);
         }
         .settings-panel.active { display: block; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
 
-        .setting-group { margin-bottom: 15px; }
-        .setting-label { font-size: 0.7rem; color: #888; margin-bottom: 5px; display: block; }
-        .color-opts { display: flex; gap: 10px; }
-        .color-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 1px solid #fff; }
+        .setting-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .setting-title { font-size: 0.75rem; color: var(--accent); font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+        
+        .color-opts { display: flex; gap: 10px; margin-bottom: 10px; }
+        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); transition: transform 0.2s; }
+        .color-dot:hover { transform: scale(1.2); border-color: #fff; }
 
-        .toggle-opt { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
-        .toggle-opt input { cursor: pointer; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; margin-bottom: 8px; color: #ccc; }
+        
+        /* Custom Sliders */
+        input[type=range] {
+            -webkit-appearance: none; width: 100px; height: 4px; background: #333; border-radius: 2px; outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer;
+        }
 
-        /* --- 3. SIDEBAR STATS (New Feature) --- */
+        .reset-btn {
+            width: 100%; padding: 8px; background: transparent; border: 1px solid #555; color: #888;
+            font-family: var(--font-mono); cursor: pointer; font-size: 0.7rem; margin-top: 10px; transition: 0.3s;
+        }
+        .reset-btn:hover { border-color: red; color: red; }
+
+        /* --- SIDEBAR STATS --- */
         .sidebar {
             position: fixed; top: 50%; left: 20px; transform: translateY(-50%);
             writing-mode: vertical-rl; text-orientation: mixed;
@@ -104,7 +140,7 @@
         }
         @media(max-width: 900px) { .sidebar { display: none; } }
 
-        /* --- 4. LOADER --- */
+        /* --- LOADER --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center;
@@ -116,7 +152,7 @@
             background: var(--accent); box-shadow: 0 0 20px var(--accent);
         }
 
-        /* --- 5. MAIN LAYOUT --- */
+        /* --- MAIN LAYOUT --- */
         #content { opacity: 0; display: none; padding-bottom: 50px; }
         .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
         
@@ -127,23 +163,22 @@
             min-height: 85vh; display: flex; flex-direction: column; 
             justify-content: center; position: relative; text-align: left;
         }
-        
         .hero-title {
             font-size: 8rem; line-height: 0.8; font-weight: 700; color: transparent;
             -webkit-text-stroke: 2px var(--white); position: relative; z-index: 2;
             letter-spacing: -4px; margin-left: -5px; transition: color 0.1s;
+            text-shadow: var(--text-glow);
         }
-        
         .glitch-active {
             color: var(--white);
-            text-shadow: 4px 0 blue, -4px 0 var(--accent);
+            text-shadow: 4px 0 #fff, -4px 0 var(--accent);
             -webkit-text-stroke: 0;
         }
-
         .hero-sub {
             font-family: var(--font-mono); font-size: 1rem; margin-top: 20px;
             color: var(--accent); letter-spacing: 2px;
             border-left: 2px solid var(--accent); padding-left: 15px;
+            text-shadow: var(--text-glow);
         }
 
         /* NAV DECK */
@@ -152,7 +187,6 @@
             position: sticky; top: 20px; z-index: 500;
             background: rgba(5,5,5,0.9); backdrop-filter: blur(5px);
         }
-        
         .nav-btn {
             background: transparent; border: none; color: #666;
             font-family: var(--font-head); font-size: 0.9rem;
@@ -175,9 +209,8 @@
             background: linear-gradient(180deg, rgba(20,20,20,0.5) 0%, rgba(0,0,0,0.8) 100%);
             display: grid; grid-template-columns: 300px 1fr;
             margin-bottom: 40px; position: relative;
-            transform-style: preserve-3d; /* For Tilt */
+            transform-style: preserve-3d;
         }
-        
         .project-img {
             background: #000; display: flex; align-items: center; justify-content: center;
             border-right: 1px solid #222; position: relative; overflow: hidden;
@@ -204,9 +237,6 @@
         .visualizer { display: flex; gap: 2px; height: 20px; align-items: center; }
         .v-bar { width: 3px; background: #333; height: 100%; transition: 0.1s; }
         .playing .v-bar { background: var(--accent); }
-        
-        /* Volume Slider */
-        .vol-control { width: 70px; accent-color: var(--accent); }
 
         /* FAQ ITEM */
         .faq-item { border-bottom: 1px solid #222; margin-bottom: 20px; padding-bottom: 20px; }
@@ -251,51 +281,67 @@
 <body>
 
     <div class="scanlines" id="scanlines"></div>
+    <div class="holo-grid" id="holoGrid"></div>
     <canvas id="particle-canvas"></canvas>
 
     <div class="settings-btn" onclick="toggleSettings()" title="System Configuration">
-        <i class="fa-solid fa-gear"></i>
+        <i class="fa-solid fa-sliders"></i>
     </div>
 
     <div class="settings-panel" id="settingsPanel">
-        <h3 style="margin-bottom: 15px; color: #fff;">CONFIGURATION</h3>
+        <h3 style="margin-bottom: 15px; color: #fff;">SYSTEM CONTROL</h3>
         
-        <div class="setting-group">
-            <span class="setting-label">THEME COLOR</span>
+        <div class="setting-section">
+            <div class="setting-title">THEME_COLOR</div>
             <div class="color-opts">
-                <div class="color-dot" style="background:#00f3ff;" onclick="setTheme('#00f3ff')"></div>
-                <div class="color-dot" style="background:#a500ff;" onclick="setTheme('#a500ff')"></div>
-                <div class="color-dot" style="background:#00ff55;" onclick="setTheme('#00ff55')"></div>
-                <div class="color-dot" style="background:#ffaa00;" onclick="setTheme('#ffaa00')"></div>
+                <div class="color-dot" style="background:#00f3ff;" onclick="setTheme('#00f3ff')" title="Cyan"></div>
+                <div class="color-dot" style="background:#ff0033;" onclick="setTheme('#ff0033')" title="Aggressive Red"></div>
+                <div class="color-dot" style="background:#a500ff;" onclick="setTheme('#a500ff')" title="Purple"></div>
+                <div class="color-dot" style="background:#00ff55;" onclick="setTheme('#00ff55')" title="Green"></div>
+                <div class="color-dot" style="background:#ffaa00;" onclick="setTheme('#ffaa00')" title="Orange"></div>
             </div>
         </div>
 
-        <div class="setting-group">
-            <span class="setting-label">VISUAL FX</span>
-            <div class="toggle-opt">
-                <span>Scanlines</span>
-                <input type="checkbox" checked onchange="toggleScanlines(this)">
+        <div class="setting-section">
+            <div class="setting-title">VISUAL_PHYSICS</div>
+            
+            <div class="control-row">
+                <span>Particle Density</span>
+                <input type="range" id="pCountSlider" min="0" max="100" value="40" oninput="updateParticleCount(this.value)">
             </div>
-            <div class="toggle-opt">
-                <span>Particles</span>
-                <input type="checkbox" checked onchange="toggleParticles(this)">
+            <div class="control-row">
+                <span>Particle Speed</span>
+                <input type="range" id="pSpeedSlider" min="0" max="20" value="5" oninput="updateParticleSpeed(this.value)">
             </div>
         </div>
 
-        <div class="setting-group">
-            <span class="setting-label">AUDIO FX</span>
-            <div class="toggle-opt">
-                <span>UI Sounds</span>
-                <input type="checkbox" checked id="soundToggle">
+        <div class="setting-section">
+            <div class="setting-title">DISPLAY_FX</div>
+            
+            <div class="control-row">
+                <span>Scanline Opacity</span>
+                <input type="range" id="scanlineSlider" min="0" max="50" value="10" oninput="updateScanlines(this.value)">
+            </div>
+            
+            <div class="control-row">
+                <span>Holo-Grid</span>
+                <input type="checkbox" id="gridToggle" onchange="toggleGrid(this)">
+            </div>
+
+            <div class="control-row">
+                <span>Text Bloom</span>
+                <input type="checkbox" id="bloomToggle" checked onchange="toggleBloom(this)">
             </div>
         </div>
+
+        <button class="reset-btn" onclick="resetConfig()">[RESET CONFIGURATION]</button>
     </div>
 
     <div class="sidebar">
         <div style="color:var(--accent)">STATUS: ONLINE</div>
         <div>SESSION: <span id="sessionTimer">00:00</span></div>
         <div>LOCAL: <span id="localClock">00:00</span></div>
-        <div>V6.1.0</div>
+        <div>V7.1.0</div>
     </div>
 
     <div id="loader">
@@ -353,7 +399,10 @@
                             <div class="play-strip">
                                 <button class="play-btn" id="play-trigger">►</button>
                                 <div class="track-info">Sneak Peek [Decrypting...]</div>
-                                <input type="range" class="vol-control" min="0" max="1" step="0.1" value="0.5" oninput="setVolume(this.value)">
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #666;">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                    <input type="range" style="width: 50px;" min="0" max="1" step="0.1" value="0.5" oninput="setVolume(this.value)">
+                                </div>
                                 <div class="visualizer" id="visualizer"></div>
                             </div>
                         </div>
@@ -364,7 +413,6 @@
             </div>
 
             <div id="data" class="tab-content">
-                
                 <div style="margin-bottom: 30px; color: #555; font-size: 0.8rem;">
                     // USER BIO-DATA
                 </div>
@@ -405,7 +453,6 @@
                         <p>My style is "Full Flavor" because I refuse to be locked into a single genre. If it sounds good, I make it.</p>
                     </div>
                 </div>
-
             </div>
 
             <div id="uplinks" class="tab-content">
@@ -424,62 +471,101 @@
                     </a>
                 </div>
             </div>
-
         </div>
-
     </div>
     
     <audio id="sneak-audio" crossorigin="anonymous"></audio>
 
     <script>
-        /* --- 0. INIT --- */
-        // 9. CONSOLE EASTER EGG
-        console.log(
-            "%c LUCKY /// SYSTEM V6 ", 
-            "background: #000; color: #00f3ff; font-size: 20px; font-weight: bold; border: 1px solid #00f3ff; padding: 10px;"
-        );
-
-        /* --- 1. SETTINGS LOGIC --- */
+        /* --- 1. SETTINGS & SAVE LOGIC --- */
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('active');
-            playUiSound();
+        }
+
+        function saveSettings() {
+            const settings = {
+                theme: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+                scanlines: document.getElementById('scanlineSlider').value,
+                pCount: document.getElementById('pCountSlider').value,
+                pSpeed: document.getElementById('pSpeedSlider').value,
+                grid: document.getElementById('gridToggle').checked,
+                bloom: document.getElementById('bloomToggle').checked
+            };
+            localStorage.setItem('luckySystemSettings', JSON.stringify(settings));
         }
 
         function setTheme(color) {
             document.documentElement.style.setProperty('--accent', color);
-            playUiSound();
+            // Re-apply bloom based on toggle, utilizing new color
+            toggleBloom(document.getElementById('bloomToggle'));
+            saveSettings();
         }
 
-        function toggleScanlines(el) {
-            document.getElementById('scanlines').style.display = el.checked ? 'block' : 'none';
+        function updateScanlines(val) {
+            document.documentElement.style.setProperty('--scanline-op', val / 100);
+            saveSettings();
         }
 
-        function toggleParticles(el) {
-            document.getElementById('particle-canvas').style.display = el.checked ? 'block' : 'none';
+        function updateParticleCount(val) {
+            initParticles(parseInt(val));
+            saveSettings();
         }
 
-        /* --- 2. UI SOUND FX --- */
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playUiSound() {
-            if(!document.getElementById('soundToggle').checked) return;
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.1);
+        function updateParticleSpeed(val) {
+            particleSpeedMult = val / 10;
+            saveSettings();
         }
 
-        /* --- 3. TIMERS & CLOCKS --- */
-        // Session Timer
+        function toggleGrid(el) {
+            const grid = document.getElementById('holoGrid');
+            if(el.checked) grid.classList.add('active');
+            else grid.classList.remove('active');
+            saveSettings();
+        }
+
+        function toggleBloom(el) {
+            if(el.checked) {
+                document.documentElement.style.setProperty('--text-glow', '0 0 10px var(--accent)');
+            } else {
+                document.documentElement.style.setProperty('--text-glow', 'none');
+            }
+            saveSettings();
+        }
+
+        function resetConfig() {
+            localStorage.removeItem('luckySystemSettings');
+            location.reload(); 
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('luckySystemSettings');
+            if (saved) {
+                const s = JSON.parse(saved);
+                
+                // Set Theme
+                document.documentElement.style.setProperty('--accent', s.theme);
+                
+                // Set Inputs
+                document.getElementById('scanlineSlider').value = s.scanlines;
+                document.getElementById('pCountSlider').value = s.pCount;
+                document.getElementById('pSpeedSlider').value = s.pSpeed;
+                document.getElementById('gridToggle').checked = s.grid;
+                document.getElementById('bloomToggle').checked = s.bloom;
+                
+                // Apply logic
+                updateScanlines(s.scanlines);
+                initParticles(parseInt(s.pCount));
+                particleSpeedMult = s.pSpeed / 10;
+                
+                const grid = document.getElementById('holoGrid');
+                if(s.grid) grid.classList.add('active');
+                
+                if(s.bloom) document.documentElement.style.setProperty('--text-glow', '0 0 10px var(--accent)');
+                else document.documentElement.style.setProperty('--text-glow', 'none');
+            }
+        }
+
+        /* --- 2. TIMERS & CLOCKS --- */
         let seconds = 0;
         setInterval(() => {
             seconds++;
@@ -488,28 +574,25 @@
             document.getElementById('sessionTimer').innerText = `${m}:${s}`;
         }, 1000);
 
-        // Real Time Clock
         setInterval(() => {
             const now = new Date();
             document.getElementById('localClock').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
 
-        /* --- 4. NAVIGATION --- */
+        /* --- 3. NAVIGATION --- */
         function openTab(tabName, btn) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             btn.classList.add('active');
-            playUiSound();
         }
 
         function toggleFaq(item) {
             item.classList.toggle('open');
-            playUiSound();
         }
 
-        /* --- 5. AUDIO PLAYER --- */
+        /* --- 4. AUDIO PLAYER --- */
         const playBtn = document.getElementById('play-trigger');
         const audioEl = document.getElementById('sneak-audio');
         const visualizer = document.getElementById('visualizer');
@@ -522,14 +605,13 @@
             visualizer.appendChild(bar);
         }
 
-        let analyser, source, animationId, isPlaying = false;
+        let audioCtx, analyser, source, animationId, isPlaying = false;
 
         function setVolume(val) { audioEl.volume = val; }
 
         playBtn.addEventListener('click', async () => {
-            playUiSound();
             if(!analyser) {
-                // Init Audio Context
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
                 analyser.fftSize = 64;
                 source = audioCtx.createMediaElementSource(audioEl);
@@ -576,7 +658,7 @@
             });
         }
 
-        /* --- 6. GLITCH TITLE --- */
+        /* --- 5. GLITCH TITLE --- */
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         const title = document.querySelector('.glitch-target');
         const originalText = title.dataset.value;
@@ -598,20 +680,22 @@
         }
         setInterval(runGlitch, 10000);
 
-        /* --- 7. PARTICLES --- */
+        /* --- 6. PARTICLES --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
-        function initParticles() {
+        let particleSpeedMult = 0.5; // Controls speed
+
+        function initParticles(count = 40) {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
-            for(let i=0; i<40; i++) { 
+            for(let i=0; i<count; i++) { 
                 particles.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
                     size: Math.random() * 2,
-                    speedY: Math.random() * -0.5, 
+                    speedY: (Math.random() * -0.5 - 0.1), 
                     opacity: Math.random() * 0.5
                 });
             }
@@ -619,7 +703,7 @@
         function animateParticles() {
             ctx.clearRect(0, 0, width, height);
             particles.forEach(p => {
-                p.y += p.speedY;
+                p.y += p.speedY * particleSpeedMult;
                 if(p.y < 0) p.y = height; 
                 ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.5})`;
                 ctx.beginPath();
@@ -629,14 +713,13 @@
             requestAnimationFrame(animateParticles);
         }
 
-        /* --- 8. 3D TILT EFFECT --- */
+        /* --- 7. 3D TILT EFFECT --- */
         document.addEventListener('mousemove', (e) => {
             document.querySelectorAll('.tilt-box').forEach(card => {
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                // Only tilt if mouse is near
                 if (x > -50 && x < rect.width + 50 && y > -50 && y < rect.height + 50) {
                     const xRot = -((y - rect.height/2) / rect.height * 5); 
                     const yRot = (x - rect.width/2) / rect.width * 5;
@@ -647,28 +730,16 @@
             });
         });
 
-        /* --- 9. KONAMI CODE EASTER EGG (Rainbow Mode) --- */
-        const secretCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-        let codePos = 0;
-        document.addEventListener('keydown', (e) => {
-            if(e.key === secretCode[codePos]) {
-                codePos++;
-                if(codePos === secretCode.length) {
-                    alert("CHEAT CODE ACTIVATED: RAINBOW MODE");
-                    document.documentElement.style.setProperty('--accent', 'red');
-                    setInterval(() => {
-                        const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-                        document.documentElement.style.setProperty('--accent', randomColor);
-                    }, 500);
-                    codePos = 0;
-                }
-            } else { codePos = 0; }
-        });
-
         /* --- INIT --- */
         window.onload = () => {
-            initParticles(); animateParticles();
-            window.addEventListener('resize', initParticles);
+            loadSettings(); // Load saved settings first
+            
+            // If particles weren't loaded by settings, init default
+            if(particles.length === 0) initParticles(40);
+            animateParticles();
+            
+            window.addEventListener('resize', () => initParticles(particles.length));
+            
             const loadBar = document.getElementById('load-bar-fill');
             const loader = document.getElementById('loader');
             const content = document.getElementById('content');
