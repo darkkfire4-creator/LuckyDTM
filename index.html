@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY /// SYSTEM_V7_PERSISTENT</title>
+    <title>LUCKY /// SYSTEM_V7.2</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,7 +35,8 @@
             --font-head: 'Syncopate', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
             --scanline-op: 0.1;
-            --text-glow: 0 0 10px var(--accent);
+            /* CHANGED: Default glow is now NONE for cleaner text */
+            --text-glow: none; 
         }
 
         /* RESET & BASE */
@@ -330,7 +331,7 @@
 
             <div class="control-row">
                 <span>Text Bloom</span>
-                <input type="checkbox" id="bloomToggle" checked onchange="toggleBloom(this)">
+                <input type="checkbox" id="bloomToggle" onchange="toggleBloom(this)">
             </div>
         </div>
 
@@ -341,7 +342,7 @@
         <div style="color:var(--accent)">STATUS: ONLINE</div>
         <div>SESSION: <span id="sessionTimer">00:00</span></div>
         <div>LOCAL: <span id="localClock">00:00</span></div>
-        <div>V7.1.0</div>
+        <div>V7.2.0</div>
     </div>
 
     <div id="loader">
@@ -489,14 +490,14 @@
                 pCount: document.getElementById('pCountSlider').value,
                 pSpeed: document.getElementById('pSpeedSlider').value,
                 grid: document.getElementById('gridToggle').checked,
-                bloom: document.getElementById('bloomToggle').checked
+                // Bloom is no longer saved to persistent storage to ensure OFF on reload
             };
-            localStorage.setItem('luckySystemSettings', JSON.stringify(settings));
+            localStorage.setItem('luckySystemSettingsV72', JSON.stringify(settings));
         }
 
         function setTheme(color) {
             document.documentElement.style.setProperty('--accent', color);
-            // Re-apply bloom based on toggle, utilizing new color
+            // Re-apply bloom check if user has it open
             toggleBloom(document.getElementById('bloomToggle'));
             saveSettings();
         }
@@ -529,16 +530,16 @@
             } else {
                 document.documentElement.style.setProperty('--text-glow', 'none');
             }
-            saveSettings();
+            // We do NOT save bloom setting so it resets on reload
         }
 
         function resetConfig() {
-            localStorage.removeItem('luckySystemSettings');
+            localStorage.removeItem('luckySystemSettingsV72');
             location.reload(); 
         }
 
         function loadSettings() {
-            const saved = localStorage.getItem('luckySystemSettings');
+            const saved = localStorage.getItem('luckySystemSettingsV72');
             if (saved) {
                 const s = JSON.parse(saved);
                 
@@ -550,7 +551,10 @@
                 document.getElementById('pCountSlider').value = s.pCount;
                 document.getElementById('pSpeedSlider').value = s.pSpeed;
                 document.getElementById('gridToggle').checked = s.grid;
-                document.getElementById('bloomToggle').checked = s.bloom;
+                
+                // Ensure Bloom is OFF by default on load
+                document.getElementById('bloomToggle').checked = false;
+                document.documentElement.style.setProperty('--text-glow', 'none');
                 
                 // Apply logic
                 updateScanlines(s.scanlines);
@@ -559,9 +563,6 @@
                 
                 const grid = document.getElementById('holoGrid');
                 if(s.grid) grid.classList.add('active');
-                
-                if(s.bloom) document.documentElement.style.setProperty('--text-glow', '0 0 10px var(--accent)');
-                else document.documentElement.style.setProperty('--text-glow', 'none');
             }
         }
 
@@ -732,7 +733,7 @@
 
         /* --- INIT --- */
         window.onload = () => {
-            loadSettings(); // Load saved settings first
+            loadSettings(); // Load saved settings (Text Bloom forced off)
             
             // If particles weren't loaded by settings, init default
             if(particles.length === 0) initParticles(40);
