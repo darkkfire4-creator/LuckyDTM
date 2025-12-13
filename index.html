@@ -3,148 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY | Electronic Music Producer</title>
+    <title>LUCKY | MULTIVERSE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await fetch('favicon.txt');
+                if (response.ok) {
+                    let base64 = await response.text();
+                    base64 = base64.trim(); // Remove any accidental whitespace
+                    
+                    let link = document.querySelector("link[rel~='icon']");
+                    if (!link) {
+                        link = document.createElement('link');
+                        link.rel = 'icon';
+                        document.head.appendChild(link);
+                    }
+                    
+                    // Check if the file already includes the data prefix, if not, add it
+                    if (base64.startsWith('data:')) {
+                        link.href = base64;
+                    } else {
+                        // defaulting to png/ico format
+                        link.href = `data:image/png;base64,${base64}`;
+                    }
+                    console.log("Favicon loaded successfully.");
+                }
+            } catch (error) {
+                console.log("No favicon.txt found, skipping.");
+            }
+        });
+    </script>
+
     <style>
-        /* --- VARIABLES & RESET --- */
+        /* --- 1. CONFIGURATION & VARIABLES --- */
         :root {
-            --bg-color: #050510;
-            --text-main: #ffffff;
-            --text-muted: #a0a0c0;
-            --accent-primary: #7000ff; /* Deep Neon Purple */
-            --accent-secondary: #00d4ff; /* Cyan */
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --font-head: 'Space Grotesk', sans-serif;
-            --font-body: 'Outfit', sans-serif;
+            --bg-deep: #050011;
+            --primary-purple: #7000ff;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff0099;
+            --glass: rgba(20, 10, 40, 0.6);
+            --glass-border: rgba(112, 0, 255, 0.3);
+            --font-head: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-deep);
+            color: #fff;
             font-family: var(--font-body);
             overflow-x: hidden;
-            line-height: 1.6;
+            overflow-y: hidden; /* Locked until start */
+            cursor: crosshair;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* --- BACKGROUND CANVAS --- */
-        #cosmos-canvas {
+        /* --- 2. STARTUP SCREEN (WARP SPEED) --- */
+        #startup-layer {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at center, #1a0b2e 0%, #050510 100%);
-        }
-
-        /* --- UTILITIES --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .section {
-            padding: 100px 0;
-            position: relative;
-        }
-
-        h1, h2, h3 {
-            font-family: var(--font-head);
-            font-weight: 700;
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #fff, var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            border: 1px solid var(--accent-primary);
-            color: #fff;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            background: rgba(112, 0, 255, 0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .btn:hover {
-            background: var(--accent-primary);
-            box-shadow: 0 0 20px var(--accent-primary);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            border-color: var(--accent-secondary);
-            background: transparent;
-        }
-        
-        .btn-outline:hover {
-            background: var(--accent-secondary);
-            box-shadow: 0 0 20px var(--accent-secondary);
-            color: #000;
-        }
-
-        /* --- NAVIGATION --- */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 20px 0;
-            z-index: 100;
-            background: rgba(5, 5, 16, 0.7);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .nav-content {
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
         }
 
-        .logo {
+        .start-btn {
+            padding: 20px 50px;
             font-family: var(--font-head);
             font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 3px;
+            color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.1);
+            border: 2px solid var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-blue);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
+        .start-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 60px var(--neon-blue), inset 0 0 20px var(--neon-blue);
+        }
+
+        /* --- 3. BACKGROUND CANVAS --- */
+        #space-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000 100%);
+        }
+
+        /* --- 4. UI STRUCTURE --- */
+        #main-interface {
+            opacity: 0;
+            transition: opacity 1s ease;
+            display: none; /* Hidden initially */
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        nav {
+            position: fixed; top: 0; width: 100%;
+            padding: 20px 0;
+            background: rgba(5, 0, 17, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 100;
+        }
+
+        .nav-flex { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo { 
+            font-family: var(--font-head); 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            text-shadow: 0 0 10px var(--primary-purple);
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* GLITCH HOVER EFFECT FOR LOGO */
+        .logo:hover {
+            animation: glitch-anim 0.3s infinite;
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); color: var(--neon-blue); }
+            40% { transform: translate(-2px, -2px); color: var(--neon-pink); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
         .nav-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            margin-left: 30px;
-            font-size: 0.9rem;
-            transition: color 0.3s;
+            color: #bbb; text-decoration: none; margin-left: 30px;
+            font-size: 1.1rem; font-weight: 700; text-transform: uppercase;
+            transition: 0.3s; position: relative;
         }
+        .nav-links a:hover { color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); }
 
-        .nav-links a:hover {
-            color: var(--accent-secondary);
-        }
-
-        /* --- HERO SECTION --- */
+        /* --- 5. HERO SECTION --- */
         .hero {
             height: 100vh;
             display: flex;
@@ -155,459 +167,443 @@
         }
 
         .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            letter-spacing: -2px;
-            line-height: 1.1;
-            text-shadow: 0 0 30px rgba(112, 0, 255, 0.3);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        /* --- SCROLL ANIMATIONS --- */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- MUSIC SECTION --- */
-        .music-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
-        }
-
-        .track-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .track-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
-            border-color: var(--accent-secondary);
-        }
-
-        .track-art-placeholder {
-            width: 100%;
-            height: 250px;
-            background: linear-gradient(45deg, #1a1a40, #2a0a4a);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-head);
-            font-weight: 700;
-            color: rgba(255,255,255,0.2);
-            font-size: 2rem;
-            border-radius: 4px;
-        }
-
-        .track-info h3 {
-            margin-bottom: 5px;
-            font-size: 1.2rem;
-        }
-
-        .track-info span {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* --- FEATURED PROJECT --- */
-        .featured-project {
-            background: linear-gradient(180deg, rgba(112, 0, 255, 0.05) 0%, transparent 100%);
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .featured-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-
-        .featured-visual {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, #000, #220033);
-            border: 1px solid var(--accent-primary);
-            position: relative;
-            box-shadow: 0 0 50px rgba(112, 0, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .multiverse-particle {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, transparent 20%, #000 150%); 
-            z-index: 2;
-        }
-        
-        /* Stylized placeholder for artwork */
-        .artwork-text {
-            font-family: var(--font-head);
-            font-size: 3rem;
-            text-align: center;
+            font-size: 5rem;
             line-height: 1;
-            background: -webkit-linear-gradient(#fff, #555);
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, var(--neon-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            z-index: 1;
+            filter: drop-shadow(0 0 20px rgba(0, 243, 255, 0.5));
+            animation: floatText 6s ease-in-out infinite;
         }
 
-        .featured-text h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: var(--accent-secondary);
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .featured-text p {
-            font-size: 1.1rem;
-            color: var(--text-muted);
+        .hero h2 {
+            font-size: 1.5rem;
+            color: var(--neon-pink);
+            letter-spacing: 6px;
             margin-bottom: 30px;
         }
 
-        /* --- ABOUT SECTION --- */
-        .about-layout {
+        .visualizer-container {
             display: flex;
-            align-items: center;
-            gap: 50px;
-            background: var(--glass-bg);
-            padding: 40px;
-            border-radius: 10px;
-            border: 1px solid var(--glass-border);
+            justify-content: center;
+            gap: 5px;
+            height: 40px;
+            margin-bottom: 30px;
         }
 
-        .about-img {
-            flex: 0 0 300px;
-            height: 300px;
-            background: #222;
-            border-radius: 5px;
+        .bar {
+            width: 8px;
+            background: var(--primary-purple);
+            animation: bounce 1s infinite ease-in-out;
+            box-shadow: 0 0 10px var(--primary-purple);
+        }
+
+        @keyframes bounce {
+            0%, 100% { height: 10%; }
+            50% { height: 100%; background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+        }
+
+        /* --- 6. PRODUCER STATS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .stat-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--neon-pink);
+        }
+
+        .stat-box h3 { font-size: 2rem; color: var(--neon-blue); }
+        .stat-box p { color: #aaa; letter-spacing: 2px; font-size: 0.9rem; }
+
+        /* --- 7. MULTIVERSAL TRANSCEND (PROJECT) --- */
+        .section-title {
+            font-family: var(--font-head);
+            font-size: 3rem;
+            text-align: center;
+            margin: 100px 0 50px 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        .project-container {
+            border: 1px solid var(--neon-pink);
+            background: linear-gradient(135deg, rgba(255, 0, 153, 0.05), rgba(0,0,0,0.8));
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 0, 153, 0.1);
+        }
+
+        /* Glowing corners for project */
+        .project-container::before { content: ''; position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 2px solid var(--neon-blue); border-left: 2px solid var(--neon-blue); }
+        .project-container::after { content: ''; position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 2px solid var(--neon-blue); border-right: 2px solid var(--neon-blue); }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--neon-pink);
+            padding-bottom: 10px;
+        }
+
+        .status-badge {
+            background: var(--neon-pink);
+            color: #000;
+            padding: 5px 15px;
+            font-weight: 900;
+            font-family: var(--font-head);
+        }
+
+        .lore-box {
+            background: rgba(0,0,0,0.6);
+            border-left: 3px solid var(--neon-blue);
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .character-m { color: var(--neon-blue); font-weight: bold; text-shadow: 0 0 5px var(--neon-blue); }
+
+        /* Progress Bar for the Album */
+        .progress-wrapper { margin-top: 30px; }
+        .progress-bar-bg { width: 100%; height: 10px; background: #333; margin-top: 5px; overflow: hidden;}
+        
+        .progress-bar-fill { 
+            width: 0%; /* Starts at 0 for animation */
+            height: 100%; 
+            background: var(--neon-pink); 
+            box-shadow: 0 0 10px var(--neon-pink);
+            position: relative;
+            animation: loadProgress 2s ease-out forwards;
+            animation-delay: 1.5s;
+        }
+        
+        @keyframes loadProgress {
+            from { width: 0%; }
+            to { width: 45%; }
+        }
+
+        .progress-bar-fill::after {
+            content: '45% COMPLETE';
+            position: absolute;
+            right: -100px;
+            top: -5px;
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+        }
+
+        /* --- 8. UPLINKS (SOCIALS ONLY) --- */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 100px;
+        }
+
+        .social-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            transition: 0.4s;
             position: relative;
             overflow: hidden;
         }
 
-        .about-img::after {
+        .social-card::before {
             content: '';
             position: absolute;
-            top:0; left:0; width:100%; height:100%;
-            background: linear-gradient(45deg, rgba(112,0,255,0.4), transparent);
+            width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            left: -100%;
+            transition: 0.5s;
         }
 
-        .about-text h2 {
-            margin-bottom: 20px;
-            font-size: 2rem;
+        .social-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.05);
         }
 
-        .about-text p {
-            color: var(--text-muted);
-            margin-bottom: 0;
-        }
-
-        /* --- CONTACT --- */
-        .contact-container {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 40px 0;
-        }
-
-        .social-icon {
-            width: 50px;
-            height: 50px;
-            border: 1px solid var(--glass-border);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-
-        .social-icon:hover {
-            border-color: var(--accent-secondary);
-            background: var(--accent-secondary);
-            color: #000;
-        }
-
-        form input, form textarea {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            font-family: var(--font-body);
-            border-radius: 4px;
-        }
-
-        form input:focus, form textarea:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            text-align: center;
-            padding: 40px 0;
-            border-top: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
+        .social-card:hover::before { left: 100%; }
 
         /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .featured-content { grid-template-columns: 1fr; }
-            .about-layout { flex-direction: column; }
-            .about-img { width: 100%; height: 250px; flex: auto; }
-            .nav-links { display: none; } /* Simple hiding for demo */
+            .hero h1 { font-size: 3rem; }
+            .stats-grid, .social-grid { grid-template-columns: 1fr; }
+            .project-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
+
     </style>
 </head>
 <body>
 
-    <canvas id="cosmos-canvas"></canvas>
-
-    <nav>
-        <div class="container nav-content">
-            <div class="logo">LUCKY</div>
-            <div class="nav-links">
-                <a href="#music">Music</a>
-                <a href="#featured">Projects</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-            </div>
+    <div id="startup-layer">
+        <div class="visualizer-container" style="margin-bottom: 20px;">
+             <div class="bar" style="animation-duration: 0.5s"></div>
+             <div class="bar" style="animation-duration: 0.7s"></div>
+             <div class="bar" style="animation-duration: 0.4s"></div>
+             <div class="bar" style="animation-duration: 0.9s"></div>
+             <div class="bar" style="animation-duration: 0.6s"></div>
         </div>
-    </nav>
+        <button class="start-btn" onclick="engageWarp()">ENTER MULTIVERSE</button>
+    </div>
 
-    <header class="hero" id="home">
-        <div class="container fade-in">
-            <h1>LUCKY<br><span class="gradient-text" style="font-size: 0.5em; font-weight: 300; display: block; margin-top: 10px;">ELECTRONIC MUSIC PRODUCER</span></h1>
-            <p>Creator of high-energy, genre-switching electronic music. <br>Welcome to the multiverse of sound.</p>
-            <div class="hero-buttons">
-                <a href="#music" class="btn">Listen Now</a>
-                <a href="#contact" class="btn btn-outline">Collab</a>
-            </div>
-        </div>
-    </header>
+    <canvas id="space-canvas"></canvas>
 
-    <section class="section" id="music">
-        <div class="container">
-            <h2 class="fade-in">Latest Releases</h2>
-            <div class="music-grid">
-                <div class="track-card fade-in">
-                    <div class="track-art-placeholder">EP</div>
-                    <div class="track-info">
-                        <h3>Nebula Crash</h3>
-                        <span>Speedcore / Artcore</span>
-                    </div>
-                </div>
-                <div class="track-card fade-in">
-                    <div class="track-art-placeholder">Single</div>
-                    <div class="track-info">
-                        <h3>Void Walker</h3>
-                        <span>Dubstep / Orchestral</span>
-                    </div>
-                </div>
-                <div class="track-card fade-in">
-                    <div class="track-art-placeholder">LP</div>
-                    <div class="track-info">
-                        <h3>Event Horizon</h3>
-                        <span>Experimental</span>
-                    </div>
+    <div id="main-interface">
+        
+        <nav>
+            <div class="container nav-flex">
+                <div class="logo">LUCKY</div>
+                <div class="nav-links">
+                    <a href="#stats">STATS</a>
+                    <a href="#transcend">PROJECT</a>
+                    <a href="#uplinks">UPLINKS</a>
                 </div>
             </div>
-        </div>
-    </section>
+        </nav>
 
-    <section class="section featured-project" id="featured">
-        <div class="container">
-            <div class="featured-content fade-in">
-                <div class="featured-visual">
-                    <div class="multiverse-particle"></div>
-                    <div class="artwork-text">MULTIVERSAL<br>TRANSCEND</div>
+        <section class="hero">
+            <div class="container">
+                <h1 id="hero-title">LUCKY</h1>
+                <h2>ELECTRONIC PRODUCER</h2>
+                
+                <p style="max-width: 600px; margin: 0 auto; color: #ccc; font-size: 1.2rem; margin-bottom: 30px;">
+                    Creator of high-energy, genre-switching electronic music. <br>
+                    <span style="color:var(--neon-blue)">ARTCORE // SPEEDCORE // ORCHESTRAL</span>
+                </p>
+
+                <div class="visualizer-container">
+                    <div class="bar" style="animation-duration: 0.6s"></div>
+                    <div class="bar" style="animation-duration: 0.8s"></div>
+                    <div class="bar" style="animation-duration: 0.4s"></div>
+                    <div class="bar" style="animation-duration: 0.5s"></div>
+                    <div class="bar" style="animation-duration: 0.7s"></div>
+                    <div class="bar" style="animation-duration: 0.9s"></div>
+                    <div class="bar" style="animation-duration: 0.6s"></div>
+                    <div class="bar" style="animation-duration: 0.8s"></div>
                 </div>
-                <div class="featured-text">
-                    <h2>Multiversal Transcend</h2>
-                    <p>A collapsing multiverse. A lone character facing despair, fear, and ultimate transcendence. This concept album is a journey told through massive genre shifts and emotional sound design.</p>
-                    <p style="color: #fff; border-left: 2px solid var(--accent-secondary); padding-left: 15px;">"A sonic narrative that breaks the boundaries of tempo and expectation."</p>
-                    <br>
-                    <a href="#" class="btn">Experience the Journey</a>
+
+                <a href="#uplinks" class="start-btn" style="font-size: 1rem; padding: 15px 30px;">TRANSMISSION CHANNELS</a>
+            </div>
+        </section>
+
+        <section class="container" id="stats">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>FL STUDIO</h3>
+                    <p>PRIMARY DAW</p>
+                </div>
+                <div class="stat-box">
+                    <h3>175+</h3>
+                    <p>BPM RANGE</p>
+                </div>
+                <div class="stat-box">
+                    <h3>HYBRID</h3>
+                    <p>ORCHESTRAL/SYNTH</p>
+                </div>
+                <div class="stat-box">
+                    <h3 style="color:var(--neon-pink)">WIP</h3>
+                    <p>CURRENT STATUS</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="section" id="about">
-        <div class="container">
-            <div class="about-layout fade-in">
-                <div class="about-img">
-                    <div style="width:100%; height:100%; background: #111; display:flex; justify-content:center; align-items:center; color: #333;">Artist Image</div>
-                </div>
-                <div class="about-text">
-                    <h2>About Lucky</h2>
-                    <p>Lucky creates emotionally charged electronic music with cinematic intros, intense beat switches, orchestral influence, and chaotic high-energy drops. The sound blends artcore, dubstep, speedcore, melodic elements, and cosmic atmospheres into a cohesive, futuristic narrative.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="contact">
-        <div class="container contact-container fade-in">
-            <h2>Connect & Book</h2>
-            <p style="margin-bottom: 20px; color: var(--text-muted);">For collaborations, bookings, or just to say hi.</p>
+        <section class="container" id="transcend">
+            <h2 class="section-title">CURRENT PROJECT</h2>
             
-            <div class="social-links">
-                <a href="#" class="social-icon">SC</a>
-                <a href="#" class="social-icon">SP</a>
-                <a href="#" class="social-icon">YT</a>
-                <a href="#" class="social-icon">IG</a>
+            <div class="project-container">
+                <div class="project-header">
+                    <div>
+                        <h3 style="font-size: 2.5rem; font-family: var(--font-head);">MULTIVERSAL TRANSCEND</h3>
+                        <p style="color:var(--neon-pink); letter-spacing: 2px;">CONCEPT ALBUM // IN THE WORKS</p>
+                    </div>
+                    <span class="status-badge">STATUS: IN PROGRESS</span>
+                </div>
+
+                <div class="lore-box">
+                    <p><strong>LOG ENTRY:</strong> The "Concept of a Space".</p>
+                    <p>There is chaos in the Multiverse. Destruction is imminent.</p>
+                    <br>
+                    <p>The entity known as <span class="character-m">"M"</span> was created to prevent the conflict. But prayers to the void remain unanswered. <span class="character-m">"M"</span> stands alone, watching their reality collapse. 
+                    Despair. Fear. Hope?</p>
+                    <br>
+                    <p>If there is no god to answer, <span class="character-m">"M"</span> must avert the catastrophe alone. They must piece it back together, even if it means they have to <strong>surpass the Beyond.</strong></p>
+                </div>
+
+                <div class="progress-wrapper">
+                    <p style="font-family: var(--font-head); font-size: 0.9rem;">COMPLETION STATUS</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <form>
-                <input type="email" placeholder="Your Email">
-                <textarea rows="4" placeholder="Your Message"></textarea>
-                <button type="submit" class="btn">Send Signal</button>
-            </form>
-        </div>
-    </section>
+        <section class="container" id="uplinks">
+            <h2 class="section-title">UPLINKS</h2>
+            
+            <div class="social-grid">
+                <a href="https://soundcloud.com/bh-fire-558322673" target="_blank" class="social-card">
+                    SOUNDCLOUD
+                    <span style="font-size: 0.8rem; color: #888; margin-top: 5px;">STREAM NOW</span>
+                </a>
+                <a href="https://www.youtube.com/@LuckyDTM" target="_blank" class="social-card">
+                    YOUTUBE
+                    <span style="font-size: 0.8rem; color: #888; margin-top: 5px;">VISUALS</span>
+                </a>
+                <a href="https://discord.com/users/758210843510308864" target="_blank" class="social-card">
+                    DISCORD
+                    <span style="font-size: 0.8rem; color: #888; margin-top: 5px;">COMMUNITY</span>
+                </a>
+            </div>
+        </section>
 
-    <footer>
-        <div class="container">
-            &copy; 2024 Lucky Music. All dimensions reserved.
-        </div>
-    </footer>
+        <footer style="text-align: center; padding-bottom: 50px; color: #555;">
+            &copy; 2025 LUCKY. MULTIVERSAL TRANSCEND PENDING.
+        </footer>
+    </div>
 
     <script>
-        // --- COSMIC PARTICLE SYSTEM ---
-        const canvas = document.getElementById('cosmos-canvas');
+        const canvas = document.getElementById('space-canvas');
         const ctx = canvas.getContext('2d');
         
-        let width, height;
-        let particles = [];
-        
+        let width, height, stars = [];
+        let warpSpeed = 0; // Default speed
+
         function resize() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
         }
-        
-        class Particle {
+
+        class Star {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2;
-                this.speedX = (Math.random() - 0.5) * 0.2; // Slow movement
-                this.speedY = (Math.random() - 0.5) * 0.2;
-                this.opacity = Math.random();
+                this.init(true);
             }
             
+            init(randomZ) {
+                this.x = (Math.random() - 0.5) * width * 2;
+                this.y = (Math.random() - 0.5) * height * 2;
+                // Z represents depth (far away to close)
+                this.z = randomZ ? Math.random() * width : width; 
+                this.color = Math.random() > 0.8 ? '#00f3ff' : (Math.random() > 0.5 ? '#7000ff' : '#ffffff');
+            }
+
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+                // Move star closer (decrease Z)
+                this.z -= (5 + warpSpeed);
                 
-                // Wrap around screen
-                if (this.x > width) this.x = 0;
-                if (this.x < 0) this.x = width;
-                if (this.y > height) this.y = 0;
-                if (this.y < 0) this.y = height;
-                
-                // Twinkle effect
-                this.opacity += (Math.random() - 0.5) * 0.05;
-                if (this.opacity < 0) this.opacity = 0;
-                if (this.opacity > 1) this.opacity = 1;
+                // If star hits screen, reset to back
+                if (this.z <= 0) {
+                    this.init(false);
+                }
             }
-            
+
             draw() {
-                ctx.fillStyle = `rgba(160, 160, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                // Perspective math
+                let x = (this.x / this.z) * (width / 2) + (width / 2);
+                let y = (this.y / this.z) * (height / 2) + (height / 2);
+                
+                // Size grows as it gets closer
+                let size = (1 - this.z / width) * 3;
+                
+                if (x >= 0 && x <= width && y >= 0 && y <= height) {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
-        
-        function initParticles() {
-            particles = [];
-            const particleCount = Math.floor(window.innerWidth / 10); // Density based on width
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < 800; i++) {
+                stars.push(new Star());
             }
         }
-        
+
         function animate() {
-            ctx.clearRect(0, 0, width, height);
-            // Draw a very faint trail/nebula effect (optional, keeping it clean for now)
+            // Leave a slight trail for warp effect
+            ctx.fillStyle = `rgba(5, 0, 17, ${warpSpeed > 10 ? 0.3 : 0.8})`; 
+            ctx.fillRect(0, 0, width, height);
             
-            particles.forEach(p => {
-                p.update();
-                p.draw();
+            stars.forEach(star => {
+                star.update();
+                star.draw();
             });
             requestAnimationFrame(animate);
         }
-        
-        window.addEventListener('resize', () => {
-            resize();
-            initParticles();
-        });
+
+        // --- INTERACTION ---
+        function engageWarp() {
+            // 1. Accelerate Stars
+            let accelerator = setInterval(() => {
+                warpSpeed += 2;
+                if(warpSpeed > 50) clearInterval(accelerator);
+            }, 50);
+
+            // 2. Fade out start screen
+            document.getElementById('startup-layer').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('startup-layer').style.display = 'none';
+            }, 800);
+
+            // 3. Show main UI
+            setTimeout(() => {
+                document.getElementById('main-interface').style.display = 'block';
+                // Trigger reflow
+                void document.getElementById('main-interface').offsetWidth; 
+                document.getElementById('main-interface').style.opacity = '1';
+                document.body.style.overflowY = 'auto'; // Unlock scroll
+                
+                // 4. Slow down stars to normal drift
+                let decelerator = setInterval(() => {
+                    warpSpeed -= 1;
+                    if(warpSpeed <= 2) {
+                        warpSpeed = 2; // Cruising speed
+                        clearInterval(decelerator);
+                    }
+                }, 50);
+
+            }, 1000);
+        }
+
+        window.addEventListener('resize', () => { resize(); initStars(); });
         
         resize();
-        initParticles();
+        initStars();
         animate();
-
-        // --- SCROLL OBSERVER (FADE IN) ---
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px"
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target); // Only animate once
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
     </script>
 </body>
 </html>
