@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY-OFFICIAL</title>
+    <title>LUCKY /// SYSTEM_V7.4_CONTACT</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -253,7 +253,7 @@
         .faq-item.open .faq-answer { display: block; animation: slideDown 0.3s ease; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* LORE / STORY SECTION (NEW) */
+        /* LORE SECTION */
         .lore-container {
             border: 1px solid var(--border);
             background: rgba(0,0,0,0.4);
@@ -293,8 +293,13 @@
             letter-spacing: 1px;
         }
 
-        /* SOCIALS */
-        .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        /* SOCIALS (UPDATED FOR 4 ITEMS) */
+        .social-grid { 
+            display: grid; 
+            /* This ensures 2x2 grid when there are 4 items */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; 
+        }
         .social-card {
             background: rgba(255,255,255,0.03); border: 1px solid #222;
             padding: 30px; text-align: center; text-decoration: none; color: #fff;
@@ -377,7 +382,7 @@
         <div style="color:var(--accent)">STATUS: ONLINE</div>
         <div>SESSION: <span id="sessionTimer">00:00</span></div>
         <div>LOCAL: <span id="localClock">00:00</span></div>
-        <div>V7.3.0</div>
+        <div>V7.4.0</div>
     </div>
 
     <div id="loader">
@@ -394,10 +399,10 @@
             </div>
             
             <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; border-top: 1px solid #222; padding-top: 20px; font-size: 0.8rem; color: #666;">
-                <div>D.A.W: FL STUDIO</div>
-                <div>BPM: 100 - 500+</div>
+                <div>DAW: FL STUDIO</div>
+                <div>BPM: 175 - 300+</div>
                 <div>STATUS: ONLINE</div>
-                <div style="color:var(--accent)">MAIN GENRE: FULL FLAVOR</div>
+                <div style="color:var(--accent)">MODE: FULL FLAVOR</div>
             </div>
         </header>
 
@@ -406,7 +411,7 @@
                 <button class="nav-btn active" onclick="openTab('overview', this)">OVERVIEW</button>
                 <button class="nav-btn" onclick="openTab('lore', this)">M_TRANSCEND</button>
                 <button class="nav-btn" onclick="openTab('data', this)">ABOUT ME</button>
-                <button class="nav-btn" onclick="openTab('uplinks', this)">LINKS</button>
+                <button class="nav-btn" onclick="openTab('uplinks', this)">UPLINKS</button>
             </div>
 
             <div id="overview" class="tab-content active">
@@ -512,6 +517,14 @@
                 </div>
 
                 <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">Tell me about the Album</div>
+                    <div class="faq-answer">
+                        <p><strong>Multiversal Transcend</strong> is my first major album. It serves as a bridge between genres.</p>
+                        <p>Expect a fusion of raw speed (Speedcore) and cinematic atmosphere. The goal is not just music, but a narrative experience.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
                     <div class="faq-question">What is "Full Flavor"?</div>
                     <div class="faq-answer">
                         <p>My style is "Full Flavor" because I refuse to be locked into a single genre. If it sounds good, I make it.</p>
@@ -533,6 +546,10 @@
                         <h3>DISCORD</h3>
                         <span>CHAT</span>
                     </a>
+                    <a href="mailto:luckyofficialcontact@gmail.com?subject=INQUIRY // PROJECT: LUCKY" class="social-card tilt-box">
+                        <h3>CONTACT</h3>
+                        <span>SECURE MAIL</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -553,9 +570,9 @@
                 pCount: document.getElementById('pCountSlider').value,
                 pSpeed: document.getElementById('pSpeedSlider').value,
                 grid: document.getElementById('gridToggle').checked,
-                // Bloom NOT saved, ensures OFF on reload
+                // Bloom NOT saved
             };
-            localStorage.setItem('luckySystemSettingsV73', JSON.stringify(settings));
+            localStorage.setItem('luckySystemSettingsV74', JSON.stringify(settings));
         }
 
         function setTheme(color) {
@@ -592,16 +609,15 @@
             } else {
                 document.documentElement.style.setProperty('--text-glow', 'none');
             }
-            // Not saving bloom state
         }
 
         function resetConfig() {
-            localStorage.removeItem('luckySystemSettingsV73');
+            localStorage.removeItem('luckySystemSettingsV74');
             location.reload(); 
         }
 
         function loadSettings() {
-            const saved = localStorage.getItem('luckySystemSettingsV73');
+            const saved = localStorage.getItem('luckySystemSettingsV74');
             if (saved) {
                 const s = JSON.parse(saved);
                 document.documentElement.style.setProperty('--accent', s.theme);
