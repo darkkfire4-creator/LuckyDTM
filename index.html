@@ -542,8 +542,7 @@
                     // Normalize the value (0-255) to a percentage height
                     // We skip the very first few frequencies as they can be messy DC offsets
                     const value = dataArray[i]; 
-                    const percent = (value / 255) * 100;
-                    // Ensure at least a tiny line shows
+                    const percent = Math.min((value / 255) * 100 * 1.8, 100);
                     bars[i].style.height = Math.max(percent, 5) + '%';
                 }
             }
