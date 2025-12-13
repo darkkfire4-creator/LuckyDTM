@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUCKY /// SYSTEM_V5_ULTIMATE</title>
+    <title>LUCKY /// OFFICIAL</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@100;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
         /* --- FAVICON LOADER --- */
@@ -25,584 +26,601 @@
     </script>
 
     <style>
-        /* --- 0. CORE VARIABLES --- */
+        /* --- 0. THEME VARIABLES (DEFAULT: CYBERPUNK) --- */
         :root {
-            --void: #050505;
-            --cyan: #00f3ff;
-            --deep-blue: #0040ff;
-            --white: #eaeaea;
-            --glass: rgba(10, 15, 20, 0.85);
-            --border: rgba(0, 243, 255, 0.2);
-            --font-head: 'Syncopate', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            /* Colors */
+            --bg: #050505;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --text-main: #eaeaea;
+            --text-muted: #888;
+            --accent: #00f3ff; /* Cyan Default */
+            --accent-glow: rgba(0, 243, 255, 0.3);
+            --border: rgba(255, 255, 255, 0.1);
+            
+            /* Fonts */
+            --font-display: 'Syncopate', sans-serif;
+            --font-body: 'JetBrains Mono', monospace;
+            
+            /* FX */
+            --scanline-opacity: 0.1;
+            --glitch-active: 1; /* 1 = on, 0 = off */
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* --- CLASSIC THEME OVERRIDES --- */
+        [data-theme="classic"] {
+            --bg: #f4f4f5;
+            --card-bg: #ffffff;
+            --text-main: #18181b;
+            --text-muted: #52525b;
+            --accent: #2563eb; /* Royal Blue */
+            --accent-glow: rgba(37, 99, 235, 0.1);
+            --border: #e4e4e7;
+            
+            --font-display: 'Inter', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            
+            --scanline-opacity: 0;
+            --glitch-active: 0;
+        }
+
+        /* --- MIDNIGHT THEME OVERRIDES --- */
+        [data-theme="midnight"] {
+            --bg: #0f0a1e;
+            --card-bg: rgba(25, 20, 40, 0.9);
+            --text-main: #eebbff;
+            --text-muted: #9988aa;
+            --accent: #ff00ff; /* Magenta */
+            --accent-glow: rgba(255, 0, 255, 0.3);
+            --border: rgba(255, 0, 255, 0.2);
+            --font-display: 'Syncopate', sans-serif;
+            --font-body: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s, border-color 0.3s; }
 
         body {
-            background-color: var(--void);
-            color: var(--white);
-            font-family: var(--font-mono);
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-body);
             overflow-x: hidden;
-            overflow-y: hidden; /* Locked until load */
-            background-image: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000 100%);
+            min-height: 100vh;
         }
 
-        /* CUSTOM SCROLLBAR */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--cyan); }
-
-        /* --- 1. VISUAL FX LAYERS --- */
+        /* --- FX LAYERS --- */
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             background-size: 100% 3px, 3px 100%;
-            z-index: 9000; pointer-events: none;
+            z-index: 9000; pointer-events: none; opacity: var(--scanline-opacity);
         }
 
-        /* PARTICLE CANVAS */
-        #particle-canvas {
-            position: fixed; top:0; left:0; width: 100%; height: 100%;
-            z-index: -1;
+        #particle-canvas { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: -1; }
+
+        /* --- LAYOUT --- */
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; padding-bottom: 100px;}
+
+        /* --- HEADER / HERO --- */
+        header { 
+            padding: 100px 0 60px 0; 
+            text-align: center; 
         }
 
-        /* --- 2. LOADER --- */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center;
-            flex-direction: column;
-        }
-        .load-bar { width: 150px; height: 1px; background: #333; position: relative; overflow: hidden; margin-top: 15px; }
-        .load-fill {
-            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
-            background: var(--cyan); box-shadow: 0 0 20px var(--cyan);
+        h1.hero-title {
+            font-family: var(--font-display);
+            font-size: 5rem; 
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            position: relative;
         }
 
-        /* --- 3. LAYOUT & TYPOGRAPHY --- */
-        #content { opacity: 0; display: none; padding-bottom: 50px; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        
-        h1, h2, h3 { font-family: var(--font-head); text-transform: uppercase; }
-
-        /* HERO SECTION */
-        .hero { 
-            min-height: 85vh; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            position: relative; 
-            text-align: left;
-        }
-        
-        .hero-title {
-            font-size: 8rem; line-height: 0.8; font-weight: 700; color: transparent;
-            -webkit-text-stroke: 2px var(--white); position: relative; z-index: 2;
-            letter-spacing: -4px; margin-left: -5px;
-            transition: color 0.1s;
-        }
-        
+        /* Glitch effect only active if theme allows */
         .glitch-active {
-            color: var(--white);
-            text-shadow: 4px 0 var(--deep-blue), -4px 0 var(--cyan);
-            -webkit-text-stroke: 0;
+            text-shadow: 3px 0 var(--accent), -3px 0 red;
         }
 
         .hero-sub {
-            font-family: var(--font-mono);
-            font-size: 1rem; 
-            margin-top: 20px;
-            color: var(--cyan);
+            color: var(--accent);
+            font-size: 1.1rem;
             letter-spacing: 2px;
-            border-left: 2px solid var(--cyan);
-            padding-left: 15px;
+            text-transform: uppercase;
         }
 
-        /* --- 4. TAB NAVIGATION SYSTEM (NEW) --- */
+        /* --- SETTINGS BUTTON --- */
+        .settings-toggle {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 2000;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .settings-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* --- SETTINGS PANEL --- */
+        .settings-panel {
+            position: fixed; top: 70px; right: 20px;
+            width: 250px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            z-index: 2000;
+            border-radius: 8px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        .settings-panel.open { display: block; animation: slideIn 0.3s; }
+        @keyframes slideIn { from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);} }
+
+        .setting-group { margin-bottom: 20px; }
+        .setting-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; display: block; text-transform: uppercase;}
+        
+        .theme-btn {
+            display: block; width: 100%; padding: 8px; margin-bottom: 5px;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-main); cursor: pointer; text-align: left;
+            border-radius: 4px; font-family: var(--font-body);
+        }
+        .theme-btn:hover, .theme-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* --- NAVIGATION TABS --- */
         .nav-deck {
-            display: flex;
-            border-bottom: 1px solid #333;
-            margin-bottom: 40px;
-            position: sticky;
-            top: 20px;
-            z-index: 500;
-            background: rgba(5,5,5,0.9);
-            backdrop-filter: blur(5px);
+            display: flex; justify-content: center; gap: 10px;
+            margin-bottom: 50px; flex-wrap: wrap;
         }
-        
         .nav-btn {
-            background: transparent;
-            border: none;
-            color: #666;
-            font-family: var(--font-head);
-            font-size: 0.9rem;
-            padding: 15px 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 12px 24px;
             cursor: pointer;
-            transition: 0.3s;
-            position: relative;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            transition: 0.2s;
+            border-radius: 4px;
         }
-        
-        .nav-btn:hover { color: var(--white); }
-        
+        .nav-btn:hover { color: var(--text-main); border-color: var(--text-main); }
         .nav-btn.active {
-            color: var(--cyan);
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+            background: var(--accent);
+            color: #000; /* Contrast text */
+            border-color: var(--accent);
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--accent-glow);
         }
-        
-        .nav-btn.active::after {
-            content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px;
-            background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
-        }
+        /* Classic Theme Nav Adjust */
+        [data-theme="classic"] .nav-btn.active { color: #fff; }
 
-        /* --- 5. TAB CONTENT AREAS --- */
-        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        /* --- TAB CONTENT --- */
+        .tab-content { display: none; animation: fadeIn 0.4s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 6. OVERVIEW TAB (Project + Player) --- */
-        .project-card {
-            border: 1px solid #222;
-            background: linear-gradient(180deg, rgba(20,20,20,0.5) 0%, rgba(0,0,0,0.8) 100%);
-            display: grid; grid-template-columns: 300px 1fr;
-            margin-bottom: 40px;
-            position: relative;
+        /* --- OVERVIEW CARD --- */
+        .profile-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            align-items: center;
         }
-        
-        .project-img {
-            background: #000;
-            display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid #222;
+        .profile-img {
+            background: linear-gradient(45deg, #111, #222);
+            height: 300px; display: flex; align-items: center; justify-content: center;
+            border-radius: 12px; border: 1px solid var(--border);
             position: relative; overflow: hidden;
         }
-        
-        .project-details { padding: 40px; }
+        /* M Symbol */
+        .profile-img h2 { font-size: 8rem; color: var(--text-main); opacity: 0.1; }
 
-        /* AUDIO PLAYER (Integrated & Clean) */
-        .audio-module {
-            margin-top: 30px;
-            border-top: 1px dashed #333;
-            padding-top: 20px;
-        }
+        .profile-info h2 { font-size: 2rem; margin-bottom: 15px; color: var(--text-main); font-family: var(--font-display); }
+        .profile-info p { line-height: 1.6; color: var(--text-muted); margin-bottom: 20px; }
         
-        .audio-header {
+        .highlight { color: var(--accent); font-weight: bold; }
+
+        /* --- AUDIO PLAYER --- */
+        .audio-player {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+        .player-row { display: flex; align-items: center; gap: 15px; }
+        
+        .play-btn-circle {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--accent); border: none;
+            color: #fff; font-size: 1.2rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .play-btn-circle:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--accent-glow); }
+
+        .track-display { flex-grow: 1; }
+        .track-title { display: block; font-weight: bold; color: var(--text-main); font-size: 0.9rem; }
+        .track-status { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Fake Visualizer */
+        .viz-bars { display: flex; gap: 3px; height: 20px; align-items: flex-end; }
+        .bar { width: 4px; background: var(--text-muted); height: 5px; border-radius: 2px; }
+        .playing .bar { background: var(--accent); animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { 0% {height: 20%;} 100% {height: 100%;} }
+
+        /* Volume Slider */
+        .vol-slider { width: 80px; accent-color: var(--accent); }
+
+        /* --- RELEASES TAB --- */
+        .release-list { list-style: none; }
+        .release-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px; margin-bottom: 10px;
+            border-radius: 6px;
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.7rem; color: #888; margin-bottom: 15px;
         }
+        .release-info h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; }
+        .release-info span { color: var(--text-muted); font-size: 0.85rem; }
         
-        .play-strip {
-            display: flex; align-items: center; gap: 15px;
-            background: #0a0a0a; border: 1px solid #333; padding: 10px;
-        }
-        
-        .play-btn {
-            background: var(--cyan); border: none; color: #000;
-            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-weight: bold; font-family: var(--font-mono);
-        }
-        .play-btn:hover { box-shadow: 0 0 10px var(--cyan); }
-        
-        .track-info { font-size: 0.8rem; color: #fff; flex-grow: 1; }
-        
-        .visualizer { display: flex; gap: 2px; height: 20px; align-items: center; }
-        .v-bar { width: 3px; background: #333; height: 100%; transition: 0.1s; }
-        .playing .v-bar { background: var(--cyan); }
-
-        /* --- 7. FAQ / DATA LOGS TAB (New Feature) --- */
-        .faq-item {
-            border-bottom: 1px solid #222;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-        }
-        
-        .faq-question {
-            font-size: 1.1rem; color: var(--white); cursor: pointer;
-            display: flex; align-items: center; gap: 10px;
-            transition: 0.3s;
-        }
-        .faq-question:hover { color: var(--cyan); padding-left: 10px; }
-        .faq-question::before { content: '>'; color: var(--cyan); font-weight: bold; }
-        
-        .faq-answer {
-            color: #888; margin-top: 10px; padding-left: 20px; line-height: 1.6;
-            font-size: 0.9rem; display: none;
-            border-left: 1px solid #333; margin-left: 4px;
-        }
-        .faq-item.open .faq-answer { display: block; animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- 8. UPLINKS TAB (Socials) --- */
-        .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .social-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #222;
-            padding: 30px; text-align: center;
-            text-decoration: none; color: #fff;
-            transition: 0.3s; position: relative;
-        }
-        .social-card:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 243, 255, 0.05);
-            transform: translateY(-2px);
-        }
-        .social-card h3 { color: var(--cyan); font-size: 1.2rem; margin-bottom: 5px; }
-        .social-card span { font-size: 0.7rem; color: #666; }
-
-        /* SIDEBAR WIDGETS */
-        .sidebar {
-            position: fixed; top: 40px; right: 40px;
-            text-align: right; pointer-events: none; z-index: 100;
-        }
-        .sidebar div { margin-bottom: 5px; font-size: 0.7rem; color: #444; }
-        
-        /* Interactive Status Dot */
-        .status-dot { 
-            width: 8px; height: 8px; background: var(--cyan); 
-            display: inline-block; border-radius: 50%; 
-            box-shadow: 0 0 10px var(--cyan); pointer-events: auto; cursor: pointer;
+        .status-badge {
+            background: var(--border); color: var(--text-muted);
+            padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold;
+            letter-spacing: 1px;
         }
 
-        /* MOBILE FIXES */
-        @media(max-width: 800px) {
-            .hero-title { font-size: 15vw; }
-            .project-card { grid-template-columns: 1fr; }
-            .project-img { height: 200px; border-right: none; border-bottom: 1px solid #222; }
-            .social-grid { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
-            .nav-deck { justify-content: center; }
-            .nav-btn { padding: 15px 15px; font-size: 0.8rem; }
+        /* --- DATA / FAQ TAB --- */
+        .faq-block { margin-bottom: 25px; }
+        .faq-block h3 { color: var(--accent); font-size: 1.1rem; margin-bottom: 10px; font-family: var(--font-display); }
+        .faq-block p { color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; }
+
+        /* --- UPLINKS TAB --- */
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .link-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 30px; text-align: center; border-radius: 8px;
+            text-decoration: none; color: var(--text-main); transition: 0.3s;
         }
+        .link-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .link-card i { font-size: 2rem; margin-bottom: 10px; color: var(--accent); }
+        .link-card h4 { margin-bottom: 5px; }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3rem; }
+            .profile-section { grid-template-columns: 1fr; }
+            .profile-img { height: 200px; }
+        }
+
     </style>
 </head>
-<body>
+<body data-theme="default">
+
+    <div class="settings-toggle" onclick="toggleSettings()">
+        <i class="fa-solid fa-gear"></i>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <h3 style="margin-bottom: 15px; color: var(--text-main);">UI SETTINGS</h3>
+        
+        <div class="setting-group">
+            <span class="setting-label">THEME SELECTION</span>
+            <button class="theme-btn active" onclick="setTheme('default')">
+                <i class="fa-solid fa-terminal"></i> SYSTEM DEFAULT (Cyberpunk)
+            </button>
+            <button class="theme-btn" onclick="setTheme('classic')">
+                <i class="fa-solid fa-ghost"></i> CLASSIC (Clean/Light)
+            </button>
+            <button class="theme-btn" onclick="setTheme('midnight')">
+                <i class="fa-solid fa-moon"></i> MIDNIGHT (Retro Purple)
+            </button>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-label">ACCENT COLOR</span>
+            <div style="display: flex; gap: 10px;">
+                <div onclick="setAccent('#00f3ff')" style="width:25px; height:25px; background:#00f3ff; border-radius:50%; cursor:pointer; border:1px solid #fff;"></div>
+                <div onclick="setAccent('#ff0055')" style="width:25px; height:25px; background:#ff0055; border-radius:50%; cursor:pointer; border:1px solid #fff;"></div>
+                <div onclick="setAccent('#44ff00')" style="width:25px; height:25px; background:#44ff00; border-radius:50%; cursor:pointer; border:1px solid #fff;"></div>
+                <div onclick="setAccent('#ffaa00')" style="width:25px; height:25px; background:#ffaa00; border-radius:50%; cursor:pointer; border:1px solid #fff;"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="scanlines"></div>
     <canvas id="particle-canvas"></canvas>
 
-    <div class="sidebar">
-        <div>SYSTEM: V5.0.2</div>
-        <div>LOC: EARTH_RELAY</div>
-        <div>STATUS: <span class="status-dot" id="secret-btn" title="Toggle Protocol"></span></div>
-    </div>
-
-    <div id="loader">
-        <h2 style="letter-spacing: 5px; color: #fff; font-size: 1rem;">INITIALIZING SYSTEM...</h2>
-        <div class="load-bar"><div class="load-fill" id="load-bar-fill"></div></div>
-    </div>
-
-    <div id="content">
-        
-        <header class="hero container">
-            <h1 class="hero-title glitch-target" data-value="LUCKY">LUCKY</h1>
-            <div class="hero-sub">
-                DIGITAL AUDIO ARCHITECT // ENTITY CLASS: PRODUCER
-            </div>
-            
-            <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; border-top: 1px solid #222; padding-top: 20px; font-size: 0.8rem; color: #666;">
-                <div>DAW: FL STUDIO</div>
-                <div>BPM: 175 - 300+</div>
-                <div>STATUS: ONLINE</div>
-                <div style="color:var(--cyan)">MODE: FULL FLAVOR</div>
-            </div>
-        </header>
-
+    <header>
         <div class="container">
-            <div class="nav-deck">
-                <button class="nav-btn active" onclick="openTab('overview', this)">OVERVIEW</button>
-                <button class="nav-btn" onclick="openTab('data', this)">DATA_LOGS</button>
-                <button class="nav-btn" onclick="openTab('uplinks', this)">UPLINKS</button>
-            </div>
+            <h1 class="hero-title glitch-target" data-text="LUCKY">LUCKY</h1>
+            <div class="hero-sub">Producer / Visual Artist</div>
+        </div>
+    </header>
 
-            <div id="overview" class="tab-content active">
-                
-                <div class="project-card">
-                    <div class="project-img">
-                        <h1 style="font-size: 8rem; color: #111;">M</h1>
-                        <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.6rem; color: #444; border: 1px solid #333; padding: 2px 5px;">ID_REF: M</div>
-                    </div>
-                    <div class="project-details">
-                        <h2 style="font-size: 1.5rem; color: var(--white); margin-bottom: 10px;">MULTIVERSAL TRANSCEND</h2>
-                        <div style="color: var(--cyan); font-size: 0.8rem; margin-bottom: 20px;">[PROJECT STATUS: BIGGEST ALBUM YET]</div>
-                        
-                        <p style="color: #888; font-size: 0.9rem; line-height: 1.6;">
-                            This is not just a compilation. It is an event. <br><br>
-                            Genre bandwidth is set to maximum capacity: 
-                            <span style="color:#fff">PsyStyle, Hardstyle, 200step, Cinematic, Orchestral, Speedcore, NeuroFunk, Hybrid Trap</span>, and unauthorized frequencies beyond classification.
-                            <br><br>
-                            I can't reveal too much yet. Just be ready.
-                        </p>
+    <div class="container">
+        <div class="nav-deck">
+            <button class="nav-btn active" onclick="openTab('overview', this)">OVERVIEW</button>
+            <button class="nav-btn" onclick="openTab('releases', this)">RELEASES</button>
+            <button class="nav-btn" onclick="openTab('info', this)">INFO & FAQ</button>
+            <button class="nav-btn" onclick="openTab('links', this)">LINKS</button>
+        </div>
 
-                        <div class="audio-module playing">
-                            <div class="audio-header">
-                                <span>INTERCEPTED AUDIO FRAGMENT</span>
-                                <span>TYPE: CROSSFADE.WAV</span>
+        <div id="overview" class="tab-content active">
+            <div class="profile-section">
+                <div class="profile-img">
+                    <h2>M</h2>
+                </div>
+                <div class="profile-info">
+                    <h2>MULTIVERSAL TRANSCEND</h2>
+                    <p>
+                        This is going to be my first and <span class="highlight">BIGGEST</span> album yet.
+                        I'm blending everything I love: PsyStyle, Hardstyle, Cinematic Orchestral, Speedcore, and Hybrid Trap.
+                    </p>
+                    <p>It's currently a W.I.P (Work In Progress), but I promise it will be worth the wait.</p>
+
+                    <div class="audio-player">
+                        <div class="player-row">
+                            <button class="play-btn-circle" id="playTrigger">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <div class="track-display">
+                                <span class="track-title">Sneak Peek: Crossfade Demo</span>
+                                <span class="track-status" id="trackStatus">Ready to Decrypt</span>
                             </div>
-                            <div class="play-strip">
-                                <button class="play-btn" id="play-trigger">►</button>
-                                <div class="track-info">SNEAKYPEEK.TXT [DECRYPTING...]</div>
-                                <div class="visualizer" id="visualizer">
-                                    </div>
+                            <div class="viz-bars" id="vizBars">
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
                             </div>
                         </div>
-
+                        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-volume-high" style="color:var(--text-muted); font-size: 0.8rem;"></i>
+                            <input type="range" class="vol-slider" min="0" max="1" step="0.1" value="0.5" oninput="changeVol(this.value)">
+                        </div>
                     </div>
-                </div>
+                    <audio id="mainAudio" crossorigin="anonymous"></audio>
 
-            </div>
-
-            <div id="data" class="tab-content">
-                
-                <div style="margin-bottom: 30px; color: #555; font-size: 0.8rem;">
-                    // ARCHIVE ACCESSED. DISPLAYING USER BIO-DATA.
-                </div>
-
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">ORIGIN_STORY // INITIALIZATION</div>
-                    <div class="faq-answer">
-                        <p><strong>Timeline:</strong> Late 2023 - Early 2024.</p>
-                        <p>I discovered the entity known as <strong>Camellia</strong> while engaged in the "Funky Friday" rhythm simulation on the Roblox mainframe. The auditory complexity of Camellia's data streams inspired me to initiate my own production protocols.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">HOBBY_PROTOCOLS // OTHER ACTIVITIES</div>
-                    <div class="faq-answer">
-                        <p>When not compiling audio, I engage in the following sub-routines:</p>
-                        <ul style="margin-top: 10px; margin-left: 20px; list-style: square;">
-                            <li>Fishing (Aquatic Data Collection)</li>
-                            <li>Dirt Bike / ATV Operation (High-Velocity Traversal)</li>
-                            <li>Astrophotography (Celestial Imaging)</li>
-                            <li>Video Editing & Short Film Production</li>
-                        </ul>
-                        <p style="margin-top: 10px;"><i>"I'm open to trying almost anything. Adaptation is key."</i></p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">PROJECT_SPECS // MULTIVERSAL TRANSCEND</div>
-                    <div class="faq-answer">
-                        <p>This is my first major compilation. It serves as a bridge between genres.</p>
-                        <p>Expect a fusion of raw speed (Speedcore) and cinematic atmosphere. The goal is not just music, but a narrative experience.</p>
-                    </div>
-                </div>
-
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">SYSTEM_NOTE // MESSAGE FROM LUCKY</div>
-                    <div class="faq-answer">
-                        <p>My style is "Full Flavor" because I refuse to be locked into a single frequency. If it sounds good, I make it. Stay tuned for the evolution.</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <div id="uplinks" class="tab-content">
-                <div class="social-grid">
-                    <a href="https://soundcloud.com/bh-fire-558322673" target="_blank" class="social-card">
-                        <h3>SOUNDCLOUD</h3>
-                        <span>STREAM_DATA</span>
-                    </a>
-                    <a href="https://www.youtube.com/@LuckyDTM" target="_blank" class="social-card">
-                        <h3>YOUTUBE</h3>
-                        <span>VISUAL_FEED</span>
-                    </a>
-                    <a href="https://discord.com/users/758210843510308864" target="_blank" class="social-card">
-                        <h3>DISCORD</h3>
-                        <span>SECURE_COMMS</span>
-                    </a>
                 </div>
             </div>
+        </div>
 
+        <div id="releases" class="tab-content">
+            <h2 style="margin-bottom: 20px; font-family: var(--font-display);">DISCOGRAPHY</h2>
+            <ul class="release-list">
+                <li class="release-item">
+                    <div class="release-info">
+                        <h3>Multiversal Transcend (Album)</h3>
+                        <span>10+ Tracks / Various Genres</span>
+                    </div>
+                    <div class="status-badge">SOON.</div>
+                </li>
+                <li class="release-item">
+                    <div class="release-info">
+                        <h3>Unknown Track 01</h3>
+                        <span>Speedcore / 250 BPM</span>
+                    </div>
+                    <div class="status-badge">SOON.</div>
+                </li>
+                <li class="release-item">
+                    <div class="release-info">
+                        <h3>Cinematic Intro ID</h3>
+                        <span>Orchestral</span>
+                    </div>
+                    <div class="status-badge">SOON.</div>
+                </li>
+                <li class="release-item">
+                    <div class="release-info">
+                        <h3>Collaboration ID</h3>
+                        <span>NeuroFunk</span>
+                    </div>
+                    <div class="status-badge">SOON.</div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="info" class="tab-content">
+            <h2 style="margin-bottom: 30px; font-family: var(--font-display);">ABOUT ME</h2>
+            
+            <div class="faq-block">
+                <h3>Who are you?</h3>
+                <p>I'm Lucky. I make music and digital art. My style is what I call <span class="highlight">"Full Flavor"</span>—I don't stick to just one genre. If it sounds cool, I make it.</p>
+            </div>
+
+            <div class="faq-block">
+                <h3>How did you start?</h3>
+                <p>Back in late 2023/early 2024, I was playing a Roblox rhythm game called <em>Funky Friday</em>. I discovered an artist named <strong>Camellia</strong> there. His complex style blew my mind and inspired me to open up a DAW and try making my own music.</p>
+            </div>
+
+            <div class="faq-block">
+                <h3>What are your hobbies?</h3>
+                <p>Aside from music production (FL Studio user here!), I love:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; color: var(--text-muted); line-height: 1.6;">
+                    <li>Fishing and outdoor stuff</li>
+                    <li>Riding Dirt Bikes and ATVs</li>
+                    <li>Astrophotography (taking pictures of space!)</li>
+                    <li>Video editing and making short films</li>
+                </ul>
+                <p style="margin-top: 10px;">I'm pretty open to trying almost anything creative or active.</p>
+            </div>
+        </div>
+
+        <div id="links" class="tab-content">
+            <div class="links-grid">
+                <a href="https://soundcloud.com/bh-fire-558322673" target="_blank" class="link-card">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <h4>SoundCloud</h4>
+                    <span>Stream my Music</span>
+                </a>
+                <a href="https://www.youtube.com/@LuckyDTM" target="_blank" class="link-card">
+                    <i class="fa-brands fa-youtube"></i>
+                    <h4>YouTube</h4>
+                    <span>Visuals & Releases</span>
+                </a>
+                <a href="https://discord.com/users/758210843510308864" target="_blank" class="link-card">
+                    <i class="fa-brands fa-discord"></i>
+                    <h4>Discord</h4>
+                    <span>Chat with me</span>
+                </a>
+            </div>
         </div>
 
     </div>
-    
-    <audio id="sneak-audio" crossorigin="anonymous"></audio>
 
     <script>
-        /* --- TAB LOGIC --- */
-        function openTab(tabName, btn) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            // Remove active class from buttons
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        /* --- 1. SETTINGS & THEMES --- */
+        const settingsPanel = document.getElementById('settingsPanel');
+        
+        function toggleSettings() {
+            settingsPanel.classList.toggle('open');
+        }
+
+        function setTheme(themeName) {
+            document.body.setAttribute('data-theme', themeName);
+            
+            // Handle Glitch Effect Logic
+            const title = document.querySelector('.hero-title');
+            if(themeName === 'classic') {
+                title.classList.remove('glitch-target');
+                title.classList.remove('glitch-active');
+            } else {
+                title.classList.add('glitch-target');
+            }
+
+            // Update Active Button UI
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function setAccent(color) {
+            document.documentElement.style.setProperty('--accent', color);
+            // Also set a glow version
+            document.documentElement.style.setProperty('--accent-glow', color + '4d'); // 30% opacity
+        }
+
+        /* --- 2. TAB NAVIGATION --- */
+        function openTab(id, btn) {
+            // Hide all
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             
             // Show target
-            document.getElementById(tabName).classList.add('active');
+            document.getElementById(id).classList.add('active');
             btn.classList.add('active');
         }
 
-        /* --- FAQ LOGIC --- */
-        function toggleFaq(item) {
-            item.classList.toggle('open');
-        }
+        /* --- 3. AUDIO PLAYER LOGIC --- */
+        const audio = document.getElementById('mainAudio');
+        const playBtn = document.getElementById('playTrigger');
+        const status = document.getElementById('trackStatus');
+        const playerContainer = document.querySelector('.audio-player');
+        let isPlaying = false;
 
-        /* --- SECRET COLOR TOGGLE --- */
-        const secretBtn = document.getElementById('secret-btn');
-        let secretMode = false;
-        secretBtn.addEventListener('click', () => {
-            secretMode = !secretMode;
-            if(secretMode) {
-                document.documentElement.style.setProperty('--cyan', '#ff0055'); // Change to Red/Pink
-                document.documentElement.style.setProperty('--deep-blue', '#ffaa00'); // Orange
+        playBtn.addEventListener('click', async () => {
+            if(!isPlaying) {
+                // If no source yet, load file
+                if(!audio.src) {
+                    status.innerText = "Loading File...";
+                    try {
+                        const r = await fetch('sneakypeek.txt');
+                        if(!r.ok) throw new Error("File Missing");
+                        let txt = await r.text();
+                        audio.src = txt.trim().startsWith('data:') ? txt.trim() : `data:audio/wav;base64,${txt.trim()}`;
+                    } catch(e) {
+                        status.innerText = "Error: sneakypeek.txt not found";
+                        return;
+                    }
+                }
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                status.innerText = "Now Playing";
+                playerContainer.classList.add('playing');
             } else {
-                document.documentElement.style.setProperty('--cyan', '#00f3ff');
-                document.documentElement.style.setProperty('--deep-blue', '#0040ff');
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                status.innerText = "Paused";
+                playerContainer.classList.remove('playing');
             }
         });
 
-        /* --- GLITCH TITLE LOGIC --- */
+        function changeVol(val) {
+            audio.volume = val;
+        }
+
+        audio.onended = () => {
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            status.innerText = "Track Finished";
+            playerContainer.classList.remove('playing');
+        };
+
+        /* --- 4. GLITCH TEXT (Only runs in Default/Midnight) --- */
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        const title = document.querySelector('.glitch-target');
-        const originalText = title.dataset.value;
-        function runGlitch() {
+        const titleElement = document.querySelector('.hero-title');
+        
+        setInterval(() => {
+            // Don't glitch if in Classic mode
+            if(document.body.getAttribute('data-theme') === 'classic') return;
+
+            const original = "LUCKY";
             let iterations = 0;
-            title.classList.add('glitch-active'); 
+            titleElement.classList.add('glitch-active');
+            
             const interval = setInterval(() => {
-                title.innerText = originalText.split("").map((l, i) => {
-                    if(i < iterations) return originalText[i];
+                titleElement.innerText = original.split("").map((l, i) => {
+                    if(i < iterations) return original[i];
                     return letters[Math.floor(Math.random() * 36)];
                 }).join("");
-                if(iterations >= originalText.length) { 
-                    clearInterval(interval);
-                    title.classList.remove('glitch-active'); 
-                    title.innerText = originalText;
+                
+                if(iterations >= original.length) { 
+                    clearInterval(interval); 
+                    titleElement.classList.remove('glitch-active');
+                    titleElement.innerText = original;
                 }
-                iterations += 1;
-            }, 30);
-        }
-        setInterval(runGlitch, 10000);
+                iterations += 1; // Speed
+            }, 50); // Frame rate
+        }, 5000); // Frequency
 
-        /* --- PARTICLES --- */
+        /* --- 5. PARTICLES (Background) --- */
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
+
         function initParticles() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
-            for(let i=0; i<40; i++) { 
+            for(let i=0; i<30; i++) {
                 particles.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
                     size: Math.random() * 2,
-                    speedY: Math.random() * -0.5, 
-                    opacity: Math.random() * 0.5
+                    speed: Math.random() * 0.5 + 0.1
                 });
             }
         }
+
         function animateParticles() {
             ctx.clearRect(0, 0, width, height);
+            
+            // Check theme for particle color
+            const isClassic = document.body.getAttribute('data-theme') === 'classic';
+            ctx.fillStyle = isClassic ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)";
+
             particles.forEach(p => {
-                p.y += p.speedY;
-                if(p.y < 0) p.y = height; 
-                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.5})`;
+                p.y -= p.speed;
+                if(p.y < 0) p.y = height;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
                 ctx.fill();
             });
             requestAnimationFrame(animateParticles);
         }
+        
+        window.onload = () => { initParticles(); animateParticles(); };
+        window.onresize = initParticles;
 
-        /* --- AUDIO PLAYER LOGIC --- */
-        const playBtn = document.getElementById('play-trigger');
-        const audioEl = document.getElementById('sneak-audio');
-        const visualizer = document.getElementById('visualizer');
-        const trackInfo = document.querySelector('.track-info');
-
-        // Create clean bars
-        for(let i=0; i<15; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'v-bar';
-            visualizer.appendChild(bar);
-        }
-
-        let audioCtx, analyser, source, animationId, isPlaying = false;
-
-        function setupAudio() {
-            if(!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 64;
-                source = audioCtx.createMediaElementSource(audioEl);
-                source.connect(analyser);
-                source.connect(audioCtx.destination);
-            }
-        }
-
-        function renderFrame() {
-            animationId = requestAnimationFrame(renderFrame);
-            if(!analyser) return;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            analyser.getByteFrequencyData(dataArray);
-            
-            const bars = document.querySelectorAll('.v-bar');
-            bars.forEach((bar, i) => {
-                // Map the frequency data to bar height (0-100%)
-                // We use a subset of the data array to fit our 15 bars
-                const value = dataArray[i + 2] || 0; 
-                bar.style.height = Math.max(10, (value / 255) * 100) + '%';
-            });
-        }
-
-        playBtn.addEventListener('click', async () => {
-            setupAudio();
-            if(audioCtx.state === 'suspended') await audioCtx.resume();
-
-            if(isPlaying) {
-                audioEl.pause();
-                isPlaying = false;
-                playBtn.innerText = "►";
-                trackInfo.innerText = "PLAYBACK PAUSED";
-                trackInfo.style.color = "#888";
-                cancelAnimationFrame(animationId);
-                document.querySelectorAll('.v-bar').forEach(b => b.style.height = '20%');
-            } else {
-                if(!audioEl.src) {
-                    // Load File
-                    trackInfo.innerText = "DECRYPTING SNEAKYPEEK.TXT...";
-                    try {
-                        const r = await fetch('sneakypeek.txt');
-                        if(!r.ok) throw new Error();
-                        const txt = await r.text();
-                        audioEl.src = txt.trim().startsWith('data:') ? txt.trim() : `data:audio/wav;base64,${txt.trim()}`;
-                    } catch(e) {
-                        trackInfo.innerText = "ERROR: FILE NOT FOUND";
-                        trackInfo.style.color = "red";
-                        return;
-                    }
-                }
-                await audioEl.play();
-                isPlaying = true;
-                playBtn.innerText = "■"; // Stop symbol
-                trackInfo.innerText = "NOW PLAYING: CROSSFADE";
-                trackInfo.style.color = "var(--cyan)";
-                renderFrame();
-            }
-        });
-
-        audioEl.onended = () => {
-            isPlaying = false;
-            playBtn.innerText = "►";
-            trackInfo.innerText = "END OF FILE";
-            trackInfo.style.color = "#888";
-            cancelAnimationFrame(animationId);
-        };
-
-        /* --- INIT LOADER --- */
-        window.onload = () => {
-            initParticles(); animateParticles();
-            window.addEventListener('resize', initParticles);
-
-            const loadBar = document.getElementById('load-bar-fill');
-            const loader = document.getElementById('loader');
-            const content = document.getElementById('content');
-            
-            setTimeout(() => { loadBar.style.width = "100%"; }, 500);
-            setTimeout(() => { 
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; content.style.display = 'block'; content.style.opacity = '1'; document.body.style.overflowY = 'auto'; runGlitch(); }, 500);
-            }, 1200);
-        };
     </script>
 </body>
 </html>
